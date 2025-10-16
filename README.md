@@ -7,14 +7,13 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             transition: background 0.5s ease;
         }
         
@@ -23,8 +22,9 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            width: 100%;
-            max-width: 500px;
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
         }
         
         h1 {
@@ -55,41 +55,32 @@
         .slider {
             width: 100%;
             height: 10px;
-            border-radius: 5px;
-            outline: none;
             -webkit-appearance: none;
+            appearance: none;
+            background: #e0e0e0;
+            outline: none;
+            border-radius: 5px;
         }
         
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
+            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
             cursor: pointer;
         }
         
-        #red-slider {
-            background: linear-gradient(to right, #000, red);
-        }
-        
         #red-slider::-webkit-slider-thumb {
-            background: red;
-        }
-        
-        #green-slider {
-            background: linear-gradient(to right, #000, green);
+            background: #ff0000;
         }
         
         #green-slider::-webkit-slider-thumb {
-            background: green;
-        }
-        
-        #blue-slider {
-            background: linear-gradient(to right, #000, blue);
+            background: #00ff00;
         }
         
         #blue-slider::-webkit-slider-thumb {
-            background: blue;
+            background: #0000ff;
         }
         
         .hex-container {
@@ -106,7 +97,6 @@
             font-size: 16px;
             text-align: center;
             font-family: monospace;
-            background-color: #f9f9f9;
         }
         
         #copy-btn {
@@ -125,18 +115,16 @@
             background-color: #45a049;
         }
         
-        .value-display {
-            font-family: monospace;
+        .copied-message {
+            color: #4CAF50;
             font-size: 14px;
-            color: #666;
-            text-align: right;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #777;
-            font-size: 14px;
+        .visible {
+            opacity: 1;
         }
     </style>
 </head>
@@ -148,24 +136,24 @@
         
         <div class="slider-container">
             <div class="slider-label">
-                <span>红色 (R)</span>
-                <span class="value-display" id="red-value">0</span>
+                <span>红色 (R): <span id="red-value">0</span></span>
+                <span>0-255</span>
             </div>
             <input type="range" min="0" max="255" value="0" class="slider" id="red-slider">
         </div>
         
         <div class="slider-container">
             <div class="slider-label">
-                <span>绿色 (G)</span>
-                <span class="value-display" id="green-value">0</span>
+                <span>绿色 (G): <span id="green-value">0</span></span>
+                <span>0-255</span>
             </div>
             <input type="range" min="0" max="255" value="0" class="slider" id="green-slider">
         </div>
         
         <div class="slider-container">
             <div class="slider-label">
-                <span>蓝色 (B)</span>
-                <span class="value-display" id="blue-value">0</span>
+                <span>蓝色 (B): <span id="blue-value">0</span></span>
+                <span>0-255</span>
             </div>
             <input type="range" min="0" max="255" value="0" class="slider" id="blue-slider">
         </div>
@@ -173,45 +161,45 @@
         <div class="hex-container">
             <input type="text" id="hex-value" readonly>
             <button id="copy-btn">复制</button>
+            <span class="copied-message" id="copied-message">已复制!</span>
         </div>
-    </div>
-    
-    <div class="footer">
-        RGB颜色混合实验室 &copy; 2025
     </div>
 
     <script>
         // 获取DOM元素
-        const colorDisplay = document.getElementById('color-display');
         const redSlider = document.getElementById('red-slider');
         const greenSlider = document.getElementById('green-slider');
         const blueSlider = document.getElementById('blue-slider');
+        
         const redValue = document.getElementById('red-value');
         const greenValue = document.getElementById('green-value');
         const blueValue = document.getElementById('blue-value');
+        
+        const colorDisplay = document.getElementById('color-display');
         const hexValue = document.getElementById('hex-value');
         const copyBtn = document.getElementById('copy-btn');
+        const copiedMessage = document.getElementById('copied-message');
         
         // 更新颜色显示
         function updateColor() {
-            const r = parseInt(redSlider.value);
-            const g = parseInt(greenSlider.value);
-            const b = parseInt(blueSlider.value);
+            const r = redSlider.value;
+            const g = greenSlider.value;
+            const b = blueSlider.value;
             
-            // 更新RGB值显示
+            // 更新数值显示
             redValue.textContent = r;
             greenValue.textContent = g;
             blueValue.textContent = b;
             
-            // 生成HEX颜色码
+            // 转换为16进制
             const hex = rgbToHex(r, g, b);
             
-            // 更新显示
+            // 更新颜色显示
             colorDisplay.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
             hexValue.value = hex;
             
             // 更新背景渐变
-            updateBackground(r, g, b);
+            document.body.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.2) 0%, rgba(${r}, ${g}, ${b}, 0.4) 100%)`;
         }
         
         // RGB转HEX
@@ -220,20 +208,8 @@
         }
         
         function componentToHex(c) {
-            const hex = c.toString(16);
+            const hex = parseInt(c).toString(16);
             return hex.length == 1 ? "0" + hex : hex;
-        }
-        
-        // 更新背景渐变
-        function updateBackground(r, g, b) {
-            // 计算互补色
-            const compR = 255 - r;
-            const compG = 255 - g;
-            const compB = 255 - b;
-            
-            // 设置渐变背景
-            document.body.style.background = 
-                `linear-gradient(135deg, rgb(${r}, ${g}, ${b}) 0%, rgb(${compR}, ${compG}, ${compB}) 100%)`;
         }
         
         // 复制HEX值
@@ -241,15 +217,14 @@
             hexValue.select();
             document.execCommand('copy');
             
-            // 显示复制成功反馈
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '已复制!';
+            // 显示复制成功消息
+            copiedMessage.classList.add('visible');
             setTimeout(() => {
-                copyBtn.textContent = originalText;
+                copiedMessage.classList.remove('visible');
             }, 2000);
         });
         
-        // 添加事件监听器
+        // 添加滑块事件监听
         redSlider.addEventListener('input', updateColor);
         greenSlider.addEventListener('input', updateColor);
         blueSlider.addEventListener('input', updateColor);
